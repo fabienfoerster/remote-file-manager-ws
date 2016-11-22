@@ -4,8 +4,8 @@ var app = express();
 var fs = require("fs");
 var util = require('util');
 
-function dirTree(filename) {
-    var stats = fs.lstatSync(filename),
+let dirTree = (filename)  => {
+    let stats = fs.lstatSync(filename),
         info = {
             path: filename,
             name: path.basename(filename)
@@ -26,21 +26,17 @@ function dirTree(filename) {
 }
 
 
-var work_dir = ".";
+//get the port from the environnement or use default
+let port = process.env.PORT || 8088
 
-var server = app.listen(8088, function () {
+let server = app.listen(port)
+console.log("Listening on port : " + port)
 
-  var host = server.address().address
-  var port = server.address().port
-  console.log("Server is listening at at http://%s:%s", host, port)
-
-});
-
-work_dir = process.argv[2];
-console.log("work_dir",work_dir);
+// get work_dir from command line argument or use default
+let work_dir = process.argv[2] || "."
+console.log("Using work dir : ",work_dir);
 
 app.get('/files', function (req, res) {
   var json = dirTree(work_dir);
-  //console.log(json);
   res.json(json);
 });
