@@ -1,28 +1,29 @@
-var path = require('path')
-var express = require('express');
-var app = express();
-var fs = require("fs");
-var util = require('util');
+let path = require('path')
+let express = require('express');
+let app = express();
+let fs = require("fs");
+let util = require('util');
 
-let dirTree = (filename)  => {
+
+let dirTreeEnhancedOutput = (current_path, filename, list_files)  => {
     let stats = fs.lstatSync(filename),
         info = {
-            path: filename,
+            path: current_path,
+            //complete_path: filename,
             name: path.basename(filename)
         };
 
     if (stats.isDirectory()) {
-        info.type = "folder";
-        info.children = fs.readdirSync(filename).map(function(child) {
-            return dirTree(filename + '/' + child);
+        fs.readdirSync(filename).map(function(child) {
+            dirTreeEnhancedOutput(filename + '/', filename + '/' + child,list_files);
         });
     } else {
-        // Assuming it's a file. In real life it could be a symlink or
-        // something else!
-        info.type = "file";
+        info.extension = path.extname(filename);
+        if(info.extension != ''){
+          list_files.push(info);
+        }
     }
-
-    return info;
+    return list_files;
 }
 
 
@@ -37,6 +38,7 @@ let work_dir = process.argv[2] || "."
 console.log("Using work dir : ",work_dir);
 
 app.get('/files', function (req, res) {
-  var json = dirTree(work_dir);
+  let list_files = [];
+  let json = dirTreeEnhancedOutput(work_dir,work_dir,list_files);
   res.json(json);
 });
