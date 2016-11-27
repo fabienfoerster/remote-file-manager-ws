@@ -59,7 +59,7 @@ app.get('/files', function (req, res) {
   res.json(json);
 });
 
-app.devare('/files', function(req, res){
+app.delete('/files', function(req, res){
   var filesToRemove = req.body;
   for (var i = 0; i < filesToRemove.length; i++) {
     var file = filesToRemove[i];
