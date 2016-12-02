@@ -3,10 +3,9 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var fs = require("fs");
 var util = require('util');
-var crypto = require('crypto');
 var jwt = require('jsonwebtoken');
 var expressJWT = require('express-jwt');
-var usersDB = require('./users.json');
+var auth = require('./auth.js');
 
 var app = express();
 
@@ -45,21 +44,6 @@ var removeFile = function(filePath,RemoveCallback) {
   // WARNING THIS WILL DEFINITIVELY REMOVE THE FILE
 }
 
-// look if the user is in the whitelist of users
-var isValidUser = function(username) {
-    if(usersDB.users[username]) return true
-    return false
-}
-
-
-var isValidePassword = function(password, passwordUser) {
-    var shasum = crypto.createHash('sha1');
-    shasum.update(password);
-    password = shasum.digest('hex');
-
-    if (password === passwordUser) {return true;}
-    return false;
-};
 
 //get the port from the environnement or use default
 var port = process.env.PORT || 8088
@@ -94,12 +78,12 @@ app.delete('/files', function(req, res){
 app.post('/auth', function(req,res){
     var username = req.body.username
     // check if the user is knowed to us
-    if(!isValidUser(username)){
+    if(!auth.isValidUser(username)){
         res.status(401).send("User not found");
         return;
     }
     // check if it is the corrrect password
-    if(!isValidePassword(req.body.password,usersDB.users[username])){
+    if(!auth.isValidePassword(req.body.password,auth.getUserPassWord(username))){
         res.status(401).send("Invalid password")
         return;
     }
