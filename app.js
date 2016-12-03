@@ -1,12 +1,23 @@
 var path = require('path')
 var express = require('express');
 var bodyParser = require('body-parser');
-var app = express();
 var fs = require("fs");
 var util = require('util');
+var crypto = require('crypto');
+var jwt = require('jsonwebtoken');
+var expressJWT = require('express-jwt');
+var usersDB = require('./users.json');
+
+var app = express();
+
+//get the secret from the environnement
+var secret = process.env.JWT_SECRET || "you should really set an env var for that"
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+// every path is secure except login and getting files
+app.use(expressJWT({ secret: secret}).unless({path:['/auth']}))
+
 
 var dirTreeEnhancedOutput = function(current_path, filename, list_files) {
     var stats = fs.lstatSync(filename),
@@ -33,6 +44,13 @@ var removeFile = function(filePath,RemoveCallback) {
   ///fs.unlink(filePath,RemoveCallback);
   // WARNING THIS WILL DEFINITIVELY REMOVE THE FILE
 }
+
+// look if the user is in the whitelist of users
+var isValidUser = function(username) {
+    if(usersDB.users[username]) return true
+    return false
+}
+
 
 var isValidePassword = function(password, passwordUser) {
     var shasum = crypto.createHash('sha1');
@@ -72,6 +90,24 @@ app.delete('/files', function(req, res){
   res.status(200).send('Everything is ok here');
 });
 
-app.post('/login',function(req,res){
-
+//endpoint for authentification
+app.post('/auth', function(req,res){
+    var username = req.body.username
+    // check if the user is knowed to us
+    if(!isValidUser(username)){
+        res.status(401).send("User not found");
+        return;
+    }
+    // check if it is the corrrect password
+    if(!isValidePassword(req.body.password,usersDB.users[username])){
+        res.status(401).send("Invalid password")
+        return;
+    }
+    // if all is good create a token containing the username and sign it using the secret
+    var token = jwt.sign({username: username},secret)
+    // send back the token to the user
+    res.json(token)
 })
+
+
+
