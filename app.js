@@ -9,6 +9,7 @@ var auth = require('./auth.js');
 
 var app = express();
 
+
 //get the secret from the environnement
 var secret = process.env.JWT_SECRET || "you should really set an env var for that"
 
@@ -83,7 +84,7 @@ app.post('/auth', function(req,res){
         return;
     }
     // check if it is the corrrect password
-    if(!auth.isValidePassword(req.body.password,auth.getUserPassWord(username))){
+    if(!auth.isValidePassword(req.body.password,auth.getUserPassword(username))){
         res.status(401).send("Invalid password")
         return;
     }
@@ -93,5 +94,8 @@ app.post('/auth', function(req,res){
     res.json(token)
 })
 
+
+//for testing
+module.exports = app;
 
 

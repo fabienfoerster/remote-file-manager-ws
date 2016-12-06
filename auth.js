@@ -1,10 +1,12 @@
-var users = require('./users.json');
+
 var crypto = require('crypto');
 module.exports = {
-    getUserPassWord: function (username) {
+    getUserPassword: function (username) {
+        var users = require('./users.json');
         return users.users[username]
     },
     isValidUser: function (username) {
+        var users = require('./users.json');
         if (users.users[username]) return true
         return false
     },
