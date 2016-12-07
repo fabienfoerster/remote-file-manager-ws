@@ -11,12 +11,12 @@ var app = express();
 
 
 //get the secret from the environnement
-var secret = process.env.JWT_SECRET || "you should really set an env var for that"
+var secret = process.env.JWT_SECRET || "you should really set an env var for that";
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 // every path is secure except login and getting files
-app.use(expressJWT({ secret: secret}).unless({path:['/auth']}))
+app.use(expressJWT({ secret: secret}).unless({path:['/auth']}));
 
 
 var dirTreeEnhancedOutput = function(current_path, filename, list_files) {
@@ -38,19 +38,19 @@ var dirTreeEnhancedOutput = function(current_path, filename, list_files) {
         }
     }
     return list_files;
-}
+};
 
 var removeFile = function(filePath,RemoveCallback) {
   ///fs.unlink(filePath,RemoveCallback);
   // WARNING THIS WILL DEFINITIVELY REMOVE THE FILE
-}
+};
 
 
 //get the port from the environnement or use default
-var port = process.env.PORT || 8088
+var port = process.env.PORT || 8088;
 
-var server = app.listen(port)
-console.log("Listening on port : " + port)
+var server = app.listen(port);
+console.log("Listening on port : " + port);
 
 // get work_dir from command line argument or use default
 var work_dir = process.argv[2] || "."
@@ -85,14 +85,14 @@ app.post('/auth', function(req,res){
     }
     // check if it is the corrrect password
     if(!auth.isValidePassword(req.body.password,auth.getUserPassword(username))){
-        res.status(401).send("Invalid password")
+        res.status(401).send("Invalid password");
         return;
     }
     // if all is good create a token containing the username and sign it using the secret
-    var token = jwt.sign({username: username},secret)
+    var token = jwt.sign({username: username},secret);
     // send back the token to the user
-    res.json(token)
-})
+    res.send(token);
+});
 
 
 //for testing
