@@ -41,7 +41,7 @@ var dirTreeEnhancedOutput = function(current_path, filename, list_files) {
 };
 
 var removeFile = function(filePath,RemoveCallback) {
-  ///fs.unlink(filePath,RemoveCallback);
+  fs.unlink(filePath,RemoveCallback);
   // WARNING THIS WILL DEFINITIVELY REMOVE THE FILE
 };
 
@@ -68,11 +68,18 @@ app.delete('/files', function(req, res){
     var file = filesToRemove[i];
     var filePath = file.path+file.name;
     console.log("Removing ",filePath);
-    removeFile(filePath,function(){
-      console.log("file should be removed");
+    removeFile(filePath,function(err){
+      if(err){
+        console.error("Error while deleting "+filePath,err);
+        res.status(400).send(err);
+      }
+      else{
+        console.log("file should be removed");
+        res.status(200).send('File '+file.name+' removed with succes');
+      }
     });
   }
-  res.status(200).send('Everything is ok here');
+
 });
 
 //endpoint for authentification
@@ -97,5 +104,3 @@ app.post('/auth', function(req,res){
 
 //for testing
 module.exports = app;
-
-
